@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_todo/shared/components/component.dart';
-import 'package:task_todo/shared/components/constants.dart';
 import 'package:task_todo/shared/cubit/cubit.dart';
 import 'package:task_todo/shared/cubit/cubitStates.dart';
 
@@ -13,9 +12,9 @@ class NewTasks extends StatelessWidget {
       builder: (context, state) {
         var tasks = AppCubit
             .get(context)
-            .tasks;
+            .newtasks;
         return ListView.separated(
-            itemBuilder: (context, index) => WidgetBuildTaskItem(tasks[index]),
+            itemBuilder: (context, index) => WidgetBuildTaskItem(tasks[index],context),
             separatorBuilder: (context, index) =>
                 Padding(
                   padding: const EdgeInsets.only(left: 50),

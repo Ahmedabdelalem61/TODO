@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:task_todo/modules/archived_tasks/archived_tasks.dart';
-import 'package:task_todo/modules/done_tasks/done%20tasks.dart';
-import 'package:task_todo/modules/new_tasks/new_tasks.dart';
 import 'package:task_todo/shared/components/component.dart';
-import 'package:task_todo/shared/components/constants.dart';
 import 'package:task_todo/shared/cubit/cubit.dart';
 import 'package:task_todo/shared/cubit/cubitStates.dart';
 
@@ -45,10 +41,24 @@ class HomeLayout extends StatelessWidget {
               title: Text(cubit.titles[cubit.currentIndex]),
             ),
             body: ConditionalBuilder(
-              condition: true,
+              condition: cubit.tasks.length!=0,
               builder: (context) => cubit.screens[cubit.currentIndex],
               fallback: (context) => Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    CircularProgressIndicator(
+                    ),
+                    SizedBox(height: 25,),
+                    Text('it seems that no inserted tasks ',style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15
+                    ),)
+                  ],
+                ),
               ),
             ),
             floatingActionButton: FloatingActionButton(
@@ -82,7 +92,6 @@ class HomeLayout extends StatelessWidget {
                   scaffoldkey.currentState
                       .showBottomSheet((context) => Container(
                             width: double.infinity,
-                            color: Colors.grey[200],
                             padding: EdgeInsets.all(20),
                             child: Form(
                               key: formkey,
