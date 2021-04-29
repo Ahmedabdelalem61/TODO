@@ -11,3 +11,5 @@ class AppDeleteDataBaseState extends AppStates{}
 class AppGetDataLoadingState extends AppStates{}
 class AppInsertDataBaseState extends AppStates{}
 class AppChangeBottomSheetState extends AppStates{}
+class ChangeThemeModeState extends AppStates{}
+

@@ -6,6 +6,7 @@ import 'package:task_todo/modules/archived_tasks/archived_tasks.dart';
 import 'package:task_todo/modules/done_tasks/done%20tasks.dart';
 import 'package:task_todo/modules/new_tasks/new_tasks.dart';
 import 'package:task_todo/shared/cubit/cubitStates.dart';
+import 'package:task_todo/shared/network/local/cashe_helper.dart';
 
 class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(initialState());
@@ -19,7 +20,6 @@ class AppCubit extends Cubit<AppStates> {
   List<Map> donetasks = [];
   List<Map> archivetasks = [];
 
-
   void changeIndex(int index) {
     currentIndex = index;
     emit(AppChangeNavBarState());
@@ -32,7 +32,7 @@ class AppCubit extends Cubit<AppStates> {
       print('data base are created');
       dataBase
           .execute(
-          'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT,status TEXT)')
+              'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT,status TEXT)')
           .then((value) {
         print('table are created');
       }).catchError((error) {
@@ -47,27 +47,24 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  void getDataFromDataBase(dataBase)  {
+  void getDataFromDataBase(dataBase) {
     newtasks = [];
     donetasks = [];
     archivetasks = [];
-     dataBase.rawQuery('SELECT * FROM tasks').then((value) {
-       tasks = value;
-       print(tasks);
-       emit(AppGetDataBaseState());
-       tasks.forEach((element) {
-
-         if(element['status']=='new')
-           newtasks.add(element);
-         else if(element['status']=='done')
-         donetasks.add(element);
+    dataBase.rawQuery('SELECT * FROM tasks').then((value) {
+      tasks = value;
+      print(tasks);
+      emit(AppGetDataBaseState());
+      tasks.forEach((element) {
+        if (element['status'] == 'new')
+          newtasks.add(element);
+        else if (element['status'] == 'done')
+          donetasks.add(element);
         else
           archivetasks.add(element);
-         print(element['status']);
-       }
-
-       );
-     });
+        print(element['status']);
+      });
+    });
   }
 
   void insertToDataBase({
@@ -78,12 +75,11 @@ class AppCubit extends Cubit<AppStates> {
     await dataBase.transaction((txn) {
       txn
           .rawInsert(
-          'INSERT INTO tasks(title,date,time,status) VALUES("$title","$date","$time","new")')
+              'INSERT INTO tasks(title,date,time,status) VALUES("$title","$date","$time","new")')
           .then((value) {
         print('${value}inserted Successfully');
         emit(AppInsertDataBaseState());
         getDataFromDataBase(dataBase);
-
       }).catchError((error) {
         print('error when insrting raw ${error.toString()}');
       });
@@ -93,13 +89,10 @@ class AppCubit extends Cubit<AppStates> {
 
   void deleteFromDataBase({
     @required int id,
-
   }) async {
     await dataBase.transaction((txn) {
-      txn
-          .rawDelete('DELETE FROM tasks WHERE id = ?', [id])
-          .then((value) {
-       emit(AppDeleteDataBaseState());
+      txn.rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value) {
+        emit(AppDeleteDataBaseState());
         getDataFromDataBase(dataBase);
       }).catchError((error) {
         print('error when Deleting raw ${error.toString()}');
@@ -112,13 +105,11 @@ class AppCubit extends Cubit<AppStates> {
     @required String status,
     @required int id,
   }) async {
-     dataBase.rawUpdate(
-        'UPDATE tasks SET status = ? WHERE id = ?'
-        , ['$status', id]
-    ).then((value) {
-       emit(AppUpdaeDataBaseState());
-       getDataFromDataBase(dataBase);
-     });
+    dataBase.rawUpdate('UPDATE tasks SET status = ? WHERE id = ?',
+        ['$status', id]).then((value) {
+      emit(AppUpdaeDataBaseState());
+      getDataFromDataBase(dataBase);
+    });
   }
 
   bool isBottomshowen = false;
@@ -129,5 +120,18 @@ class AppCubit extends Cubit<AppStates> {
     isBottomshowen = isShow;
     fabIcon = icon;
     emit(AppChangeBottomSheetState());
+  }
+
+  bool isDark = false;
+
+  void ChangeThemeMode({bool fromSharedPreferences}) {
+    if (fromSharedPreferences != null) {
+      isDark = fromSharedPreferences;
+      emit(ChangeThemeModeState());
+    } else {
+      isDark = !isDark;
+      CasheHelper.putData('isDark', isDark);
+      emit(ChangeThemeModeState());
+    }
   }
 }
